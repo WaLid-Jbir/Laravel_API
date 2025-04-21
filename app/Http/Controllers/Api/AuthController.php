@@ -2,17 +2,42 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\RegisterRequest;
+use App\Models\User;
+use App\Helper\ResponseHelper;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
     /**
      * Register a new user.
      */
-    public function regiter(Request $request)
+    public function register(RegisterRequest $request)
     {
-        //
+        try{
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'phone_number' => $request->phone_number,
+            ]);
+
+            if($user){
+                return ResponseHelper::success(
+                    message: 'User has been registered successfully!', 
+                    data: $user, 
+                    statusCode: 201
+                );
+            }
+
+            return ResponseHelper::error(message: 'Unable to register user! Please try again.', statusCode: 201);
+        }
+        catch(\Exception $e){
+            Log::error('Unable to Register User : ' . $e->getMessage() . ' - on line ' . $e->getLine());
+            return ResponseHelper::error(message: 'Something went wrong! Please try again.', statusCode: 500);
+        }
     }
 
     /**
