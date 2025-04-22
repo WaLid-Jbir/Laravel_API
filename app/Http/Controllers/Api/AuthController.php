@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use App\Helper\ResponseHelper;
 use Illuminate\Support\Facades\Log;
@@ -12,7 +14,9 @@ use Illuminate\Support\Facades\Log;
 class AuthController extends Controller
 {
     /**
-     * Register a new user.
+     * Function: Register a new user.
+     * @param RegisterRequest $request
+     * @return JSONResponse
      */
     public function register(RegisterRequest $request)
     {
@@ -36,31 +40,42 @@ class AuthController extends Controller
         }
         catch(\Exception $e){
             Log::error('Unable to Register User : ' . $e->getMessage() . ' - on line ' . $e->getLine());
-            return ResponseHelper::error(message: 'Something went wrong! Please try again.', statusCode: 500);
+            return ResponseHelper::error(message: 'Something went wrong! Please try again.' . $e->getMessage(), statusCode: 500);
         }
     }
 
     /**
-     * Display the specified resource.
+     * Function: Login user.
+     * @param LoginRequest $request
+     * @return JSONResponse
      */
-    public function show(string $id)
+    public function login(LoginRequest $request)
     {
-        //
-    }
+        try {
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+            $isUser = Auth::attempt(['email' => $request->email, 'password' => $request->password]);
+            // Check if user is already authenticated
+            if(!$isUser){
+                return ResponseHelper::error(message: 'Invalid email or password!', statusCode: 400);
+            }
+            $user = Auth::user();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+            // create a token for the user
+            $token = $user->createToken('My API Token')->plainTextToken;
+
+            $authUser = [
+                'user' => $user,
+                'token' => $token
+            ];
+
+            return ResponseHelper::success(
+                message: 'User has been logged in successfully!',
+                data: $authUser,
+                statusCode: 200
+            );
+        } catch (\Exception $e) {
+            Log::error('Unable to Login User : ' . $e->getMessage() . ' - on line ' . $e->getLine());
+            return ResponseHelper::error(message: 'Something went wrong! Please try again.' . $e->getMessage(), statusCode: 500);
+        }
     }
 }
