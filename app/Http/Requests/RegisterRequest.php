@@ -40,6 +40,12 @@ class RegisterRequest extends FormRequest
             // Here you can write a custom message for each rule
             'name.required' => 'Please enter a "name" and must be a string.',
             'name.min' => 'Name must be at least 5 characters long.',
+            'name.max' => 'Name must be at most 150 characters long.',
+            'email.required' => 'Please enter a "email" and must be a valid email address.',
+            'email.unique' => 'This email is already registered.',
+            'password.required' => 'Please enter a "password" and must be a string.',
+            'password.min' => 'Password must be at least 6 characters long.',
+            'phone_number.required' => 'Please enter a "phone number" and must be a 10 digits number.',
         ];
     }
 }
