@@ -78,4 +78,27 @@ class AuthController extends Controller
             return ResponseHelper::error(message: 'Something went wrong! Please try again.' . $e->getMessage(), statusCode: 500);
         }
     }
+
+    /**
+     * Function: Get user profile data / Authenticated user data.
+     * @param None
+     * @return JSONResponse
+     */
+    public function userProfile()
+    {
+        try {
+            $user = Auth::user();
+            if($user){
+                return ResponseHelper::success(
+                    message: 'User profile data fetched successfully!',
+                    data: $user,
+                    statusCode: 200
+                );
+            }
+            return ResponseHelper::error(message: 'Unable to fetch user profile data due to invalid token.', statusCode: 400);
+        } catch (\Exception $e) {
+            Log::error('Unable to fetch user profile data : ' . $e->getMessage() . ' - on line ' . $e->getLine());
+            return ResponseHelper::error(message: 'Something went wrong! Please try again.' . $e->getMessage(), statusCode: 500);
+        }
+    }
 }
