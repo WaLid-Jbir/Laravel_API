@@ -101,4 +101,28 @@ class AuthController extends Controller
             return ResponseHelper::error(message: 'Something went wrong! Please try again.' . $e->getMessage(), statusCode: 500);
         }
     }
+
+    /**
+     * Function: User logout.
+     * @param None
+     * @return JSONResponse
+     */
+    public function logout()
+    {
+        try {
+            $user = Auth::user();
+            if($user){
+                // delete the token that was used to authenticate the current request...
+                $user->currentAccessToken()->delete();
+                return ResponseHelper::success(
+                    message: 'User logged out successfully!',
+                    statusCode: 200
+                );
+            }
+            return ResponseHelper::error(message: 'Unable to logout.', statusCode: 400);
+        } catch (\Exception $e) {
+            Log::error('Unable to logout : ' . $e->getMessage() . ' - on line ' . $e->getLine());
+            return ResponseHelper::error(message: 'Something went wrong! Please try again.' . $e->getMessage(), statusCode: 500);
+        }
+    }
 }
